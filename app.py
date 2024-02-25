@@ -68,7 +68,7 @@ def close_db(error):
 @app.route('/')
 def show_tasks():
     db = get_db()
-    cur = db.execute('select title, text from tasks order by id desc')
+    cur = db.execute('select * from tasks order by id desc')
     tasks = cur.fetchall()
     return render_template('show_tasks.html', tasks=tasks)
 
@@ -80,4 +80,16 @@ def add_task():
                [request.form['title'], request.form['text']])
     db.commit()
     flash('New task was successfully posted')
+    return redirect(url_for('show_tasks'))
+
+@app.route('/edit', methods=['POST'])
+def edit_task():
+    title = request.form['title']
+    text = request.form['description']
+    task_id = int(request.form['task-id'])
+
+    db = get_db()
+    cur = db.execute("UPDATE tasks SET title = ?, text = ? WHERE id = ?", (title, text, task_id))
+    db.commit()
+
     return redirect(url_for('show_tasks'))

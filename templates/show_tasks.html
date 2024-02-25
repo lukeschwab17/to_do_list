@@ -11,7 +11,18 @@
   </form>
   <ul class="tasks">
   {% for task in tasks %}
-    <li><h2>{{ task.title }}</h2>{{ task.text|safe }}</li>
+    <div id={{ task.id }}>
+      <li><h2>{{ task.title }}</h2>{{ task.text|safe }}</li>
+      <form action="{{ url_for('edit_task') }}" method="post">
+        <input type="button" id="edit-{{ task.id }}" onclick="showEdit({{task.id}})" name="edit" value="Edit Task">
+        <label class="task-editor">Task:</label>
+        <input type="text" class="task-editor" name="title" value="{{ task.title }}">
+        <label class="task-editor">Description:</label>
+        <input type="text" class="task-editor" name="description" value="{{ task.text }}">
+        <input type="submit" class="task-editor" name="submit" value="OK">
+        <input type="hidden" name="task-id" value="{{ task.id }}">
+      </form>
+    </div>
   {% else %}
     <li><em>Unbelievable.  No tasks here so far</em></li>
   {% endfor %}
