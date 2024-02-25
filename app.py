@@ -76,8 +76,8 @@ def show_tasks():
 @app.route('/add', methods=['POST'])
 def add_task():
     db = get_db()
-    db.execute('insert into tasks (title, text) values (?, ?)',
-               [request.form['title'], request.form['text']])
+    db.execute('insert into tasks (title, text, completed) values (?, ?, ?)',
+               [request.form['title'], request.form['text'], 'False'])
     db.commit()
     flash('New task was successfully posted')
     return redirect(url_for('show_tasks'))
@@ -92,6 +92,7 @@ def edit_task():
     db.execute("UPDATE tasks SET title = ?, text = ? WHERE id = ?", (title, text, task_id))
     db.commit()
 
+    flash('Task was successfully edited')
     return redirect(url_for('show_tasks'))
 
 @app.route('/delete', methods=['POST'])
@@ -100,6 +101,24 @@ def delete_task():
 
     db = get_db()
     db.execute('DELETE FROM tasks WHERE id = ?', (task,))
+    db.commit()
+
+    flash('Task was successfully deleted')
+    return redirect(url_for('show_tasks'))
+
+@app.route('/complete', methods=['POST'])
+def complete_task():
+    task_id = int(request.form['task-id'])
+
+    db = get_db()
+    curs = db.execute('SELECT completed FROM tasks WHERE id = ?', (task_id,))
+    completion = curs.fetchone()[0]
+
+    if completion == 'False':
+        db.execute('UPDATE tasks SET completed = ? WHERE id = ?', ('True', task_id))
+    elif completion == 'True':
+        db.execute('UPDATE tasks SET completed = ? WHERE id = ?', ('False', task_id))
+
     db.commit()
 
     return redirect(url_for('show_tasks'))
