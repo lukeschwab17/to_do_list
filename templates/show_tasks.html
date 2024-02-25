@@ -1,0 +1,47 @@
+{% extends "layout.html" %}
+{% block body %}
+  <form action="{{ url_for('add_task') }}" method="post" class="add-task">
+    <dl>
+      <dt>Task:
+      <dd><input type="text" size="30" name="title">
+      <dt>Description:
+      <dd><textarea name="text" rows="5" cols="40" style="background-color: #CDDDDD; border: 2px solid black;"></textarea>
+      <dd><input type="submit" value="Pin">
+    </dl>
+  </form>
+  <h1>Tasks</h1>
+  <ul class="tasks">
+  {% for task in tasks %}
+    <div id={{ task.id }}>
+      <li><h2>{{ task.title }}</h2>{{ task.text|safe }}</li>
+      <form id="check-form-{{ task.id }}" action="{{ url_for('complete_task') }}" method="post">
+        <label class="checkbox-label">
+        Task completed:
+        {% if task.completed == "True" %}
+          <!-- https://stackoverflow.com/questions/10602470/submitting-a-form-when-a-checkbox-is-checked -->
+          <input type="checkbox" class="checkbox" name="checkbox" checked onchange="document.getElementById('check-form-{{ task.id }}').submit()">
+        {% else %}
+          <input type="checkbox" class="checkbox" name="checkbox" onchange="document.getElementById('check-form-{{ task.id }}').submit()">
+        {% endif %}
+          <input type="hidden" name="task-id" value="{{ task.id }}">
+        </label>
+      </form>
+      <form action="{{ url_for('edit_task') }}" method="post">
+        <input type="button" id="edit-{{ task.id }}" onclick="showEdit({{task.id}})" name="edit" value="Edit Task">
+        <label class="task-editor">Task:</label>
+        <input type="text" class="task-editor" name="title" value="{{ task.title }}">
+        <label class="task-editor">Description:</label>
+        <textarea style="background-color: #CDDDDD; border: 2px solid black;" class="task-editor" name="description">{{ task.text }}</textarea>
+        <input type="submit" class="task-editor" name="submit" value="OK">
+        <input type="hidden" name="task-id" value="{{ task.id }}">
+      </form>
+      <form action="{{ url_for('delete_task') }}" method="post">
+        <input type="submit" id="delete-{{ task.id }}" value="Delete Task">
+        <input type="hidden" name="task-to-delete" value="{{ task.id }}">
+      </form>
+    </div>
+  {% else %}
+    <li><em>Unbelievable.  No tasks here so far</em></li>
+  {% endfor %}
+  </ul>
+{% endblock %}

@@ -66,18 +66,59 @@ def close_db(error):
 
 
 @app.route('/')
-def show_entries():
+def show_tasks():
     db = get_db()
-    cur = db.execute('select title, text from entries order by id desc')
-    entries = cur.fetchall()
-    return render_template('show_entries.html', entries=entries)
+    cur = db.execute('select * from tasks order by id desc')
+    tasks = cur.fetchall()
+    return render_template('show_tasks.html', tasks=tasks)
 
 
 @app.route('/add', methods=['POST'])
-def add_entry():
+def add_task():
     db = get_db()
-    db.execute('insert into entries (title, text) values (?, ?)',
-               [request.form['title'], request.form['text']])
+    db.execute('insert into tasks (title, text, completed) values (?, ?, ?)',
+               [request.form['title'], request.form['text'], 'False'])
     db.commit()
-    flash('New entry was successfully posted')
-    return redirect(url_for('show_entries'))
+    flash('New task was successfully posted')
+    return redirect(url_for('show_tasks'))
+
+@app.route('/edit', methods=['POST'])
+def edit_task():
+    title = request.form['title']
+    text = request.form['description']
+    task_id = int(request.form['task-id'])
+
+    db = get_db()
+    db.execute("UPDATE tasks SET title = ?, text = ? WHERE id = ?", (title, text, task_id))
+    db.commit()
+
+    flash('Task was successfully edited')
+    return redirect(url_for('show_tasks'))
+
+@app.route('/delete', methods=['POST'])
+def delete_task():
+    task = int(request.form['task-to-delete'])
+
+    db = get_db()
+    db.execute('DELETE FROM tasks WHERE id = ?', (task,))
+    db.commit()
+
+    flash('Task was successfully deleted')
+    return redirect(url_for('show_tasks'))
+
+@app.route('/complete', methods=['POST'])
+def complete_task():
+    task_id = int(request.form['task-id'])
+
+    db = get_db()
+    curs = db.execute('SELECT completed FROM tasks WHERE id = ?', (task_id,))
+    completion = curs.fetchone()[0]
+
+    if completion == 'False':
+        db.execute('UPDATE tasks SET completed = ? WHERE id = ?', ('True', task_id))
+    elif completion == 'True':
+        db.execute('UPDATE tasks SET completed = ? WHERE id = ?', ('False', task_id))
+
+    db.commit()
+
+    return redirect(url_for('show_tasks'))
