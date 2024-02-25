@@ -89,7 +89,17 @@ def edit_task():
     task_id = int(request.form['task-id'])
 
     db = get_db()
-    cur = db.execute("UPDATE tasks SET title = ?, text = ? WHERE id = ?", (title, text, task_id))
+    db.execute("UPDATE tasks SET title = ?, text = ? WHERE id = ?", (title, text, task_id))
+    db.commit()
+
+    return redirect(url_for('show_tasks'))
+
+@app.route('/delete', methods=['POST'])
+def delete_task():
+    task = int(request.form['task-to-delete'])
+
+    db = get_db()
+    db.execute('DELETE FROM tasks WHERE id = ?', (task,))
     db.commit()
 
     return redirect(url_for('show_tasks'))

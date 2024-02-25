@@ -22,6 +22,10 @@
         <input type="submit" class="task-editor" name="submit" value="OK">
         <input type="hidden" name="task-id" value="{{ task.id }}">
       </form>
+      <form action="{{ url_for('delete_task') }}" method="post">
+        <input type="submit" id="delete-{{ task.id }}" value="Delete Task">
+        <input type="hidden" name="task-to-delete" value="{{ task.id }}">
+      </form>
     </div>
   {% else %}
     <li><em>Unbelievable.  No tasks here so far</em></li>

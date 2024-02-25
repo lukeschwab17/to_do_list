@@ -4,5 +4,6 @@ function showEdit(id) {
         for(let i = 0; i < children.length; ++i) {
             children[i].style.visibility = 'visible';
         }
-       document.getElementById(`edit-${id}`).remove()
+        document.getElementById(`edit-${id}`).remove();
+        document.getElementById(`delete-${id}`).remove()
     }
